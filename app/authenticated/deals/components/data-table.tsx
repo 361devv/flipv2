@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getExpandedRowModel,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -20,7 +21,7 @@ import { DealExpandedRow } from "./data-table-expanded-row";
 import { Deal } from "../data/schema";
 
 interface DataTableProps {
-  columns: ColumnDef<Deal>[];
+  columns: ColumnDef<Deal, unknown>[];
   data: Deal[];
 }
 
@@ -40,11 +41,16 @@ export function DataTable({ columns, data }: DataTableProps) {
     <div className="rounded-md border">
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((hg) => (
-            <TableRow key={hg.id}>
-              {hg.headers.map((h) => (
-                <TableHead key={h.id}>
-                  {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </TableHead>
               ))}
             </TableRow>
@@ -52,7 +58,7 @@ export function DataTable({ columns, data }: DataTableProps) {
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
+            table.getRowModel().rows.map((row: Row<Deal>) => (
               <>
                 <TableRow
                   key={row.id}
@@ -61,7 +67,10 @@ export function DataTable({ columns, data }: DataTableProps) {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -76,7 +85,10 @@ export function DataTable({ columns, data }: DataTableProps) {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center"
+              >
                 No results.
               </TableCell>
             </TableRow>
