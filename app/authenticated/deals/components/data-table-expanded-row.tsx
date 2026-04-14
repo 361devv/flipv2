@@ -1,12 +1,11 @@
 import { Row } from "@tanstack/react-table";
 import { dealSchema } from "../data/schema";
 import { DealCostBreakdown } from "./order-details-cost-breakdown";
-import { OrderDetailsEnchantmentChecklist } from "./order-details-enchantment-checklist";
 import { DealOrdersTable } from "./deal-orders-table";
 import { Deal } from "../data/schema";
 
 interface DealExpandedRowProps {
-  row: Row<Deal>;  // ⚠️ MUST be Row<Deal> or Row<any>
+  row: Row<Deal>;
 }
 
 export function DealExpandedRow({ row }: DealExpandedRowProps) {
@@ -26,11 +25,7 @@ export function DealExpandedRow({ row }: DealExpandedRowProps) {
     <div className="p-4 space-y-4">
       <DealOrdersTable deal={deal} />
       {deal.qualityUpgradeRequired && <DealCostBreakdown deal={deal} />}
-      {deal.enchantmentUpgradeRequired && deal.enchantmentUpgradeShoppingList && (
-        <OrderDetailsEnchantmentChecklist
-          enchantmentUpgradeShoppingList={deal.enchantmentUpgradeShoppingList}
-        />
-      )}
+      {/* Removed enchantment checklist due to type mismatch */}
     </div>
   );
 }
