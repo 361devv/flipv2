@@ -17,13 +17,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DealExpandedRow } from "./data-table-expanded-row";
+import { Deal } from "../data/schema";
 
-interface DataTableProps<TData> {
-  columns: ColumnDef<TData>[];
-  data: TData[];
+interface DataTableProps {
+  columns: ColumnDef<Deal>[];
+  data: Deal[];
 }
 
-export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
+export function DataTable({ columns, data }: DataTableProps) {
   const [expanded, setExpanded] = useState({});
 
   const table = useReactTable({
