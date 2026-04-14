@@ -3,9 +3,10 @@ import { dealSchema } from "../data/schema";
 import { DealCostBreakdown } from "./order-details-cost-breakdown";
 import { OrderDetailsEnchantmentChecklist } from "./order-details-enchantment-checklist";
 import { DealOrdersTable } from "./deal-orders-table";
+import { Deal } from "../data/schema";
 
 interface DealExpandedRowProps {
-  row: Row;
+  row: Row<Deal>;  // ⚠️ MUST be Row<Deal> or Row<any>
 }
 
 export function DealExpandedRow({ row }: DealExpandedRowProps) {
@@ -14,7 +15,7 @@ export function DealExpandedRow({ row }: DealExpandedRowProps) {
   if (!result.success) {
     return (
       <div className="p-4 text-red-500 text-sm">
-        Error parsing deal data. Please report this to the developers.
+        Error parsing deal data.
       </div>
     );
   }
