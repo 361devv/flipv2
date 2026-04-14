@@ -10,7 +10,8 @@ import { Deal } from "./data/schema";
 
 export const metadata: Metadata = {
   title: "Deals",
-  description: "Live view of profitable Black Market flips based on your latest data.",
+  description:
+    "Live view of profitable Black Market flips based on your latest data.",
   alternates: { canonical: "/authenticated/deals" },
 };
 
@@ -38,10 +39,14 @@ export default async function Deals({
       "id, item_type_id, location_id, item_group_type_id, enchantment_level, quality_level, unit_price_silver, amount, created_at"
     )
     .eq("action_type", "request");
-  if (tier) buyOrderQuery = buyOrderQuery.eq("tier", tier);
-  
-  const { data: buyOrders, error: buyError } = await buyOrderQuery;
-  if (buyError) return <div className="p-4 text-red-500">Error fetching buy orders</div>;
+  if (tier) {
+    buyOrderQuery = buyOrderQuery.eq("tier", tier);
+  }
+  const buyOrdersResult = await buyOrderQuery;
+  if (buyOrdersResult.error) {
+    console.error("Error fetching buy orders:", buyOrdersResult.error);
+    return <div>Error fetching buy orders</div>;
+  }
 
   let sellOrderQuery = supabase
     .from("orders")
@@ -49,14 +54,27 @@ export default async function Deals({
       "id, item_type_id, location_id, item_group_type_id, tier, enchantment_level, quality_level, unit_price_silver, amount, created_at"
     )
     .eq("action_type", "offer");
-  if (tier) sellOrderQuery = sellOrderQuery.eq("tier", tier);
-  
-  const { data: sellOrders, error: sellError } = await sellOrderQuery;
-  if (sellError) return <div className="p-4 text-red-500">Error fetching sell orders</div>;
+  if (tier) {
+    sellOrderQuery = sellOrderQuery.eq("tier", tier);
+  }
+  const sellOrdersResult = await sellOrderQuery;
+  if (sellOrdersResult.error) {
+    console.error("Error fetching sell orders:", sellOrdersResult.error);
+    return <div>Error fetching sell orders</div>;
+  }
+
+  const buyOrders = buyOrdersResult.data || [];
+  const sellOrders = sellOrdersResult.data || [];
 
   const { deals, potentialDealsCount } = getDeals({
-    sellOrders: (sellOrders || []).map((o) => ({ ...o, created_at: new Date(o.created_at) })),
-    buyOrders: (buyOrders || []).map((o) => ({ ...o, created_at: new Date(o.created_at) })),
+    sellOrders: sellOrders.map((order) => ({
+      ...order,
+      created_at: new Date(order.created_at),
+    })),
+    buyOrders: buyOrders.map((order) => ({
+      ...order,
+      created_at: new Date(order.created_at),
+    })),
     premium,
     minProfit,
     minPercentualProfit,
@@ -98,12 +116,15 @@ export default async function Deals({
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Deals</h1>
-        <p className="text-muted-foreground">
-          Found {potentialDealsCount} profitable flips from{" "}
-          {(sellOrders || []).length} sell orders and {(buyOrders || []).length} buy orders.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Deals</h1>
+          <p className="text-muted-foreground">
+            Found {potentialDealsCount} profitable flips from{" "}
+            {sellOrders.length} sell orders and {buyOrders.length} buy
+            orders.
+          </p>
+        </div>
       </div>
       <DataTable columns={columns} data={tableData} />
     </div>
